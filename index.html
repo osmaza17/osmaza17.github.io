@@ -1,7 +1,162 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #chat-container {
+            width: 400px;
+            max-width: 100%;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        #chat-log {
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .message {
+            margin-bottom: 10px;
+        }
+
+        .user-message {
+            text-align: right;
+            color: blue;
+        }
+
+        .bot-message {
+            text-align: left;
+            color: green;
+        }
+
+        #input-container {
+            display: flex;
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        #send-button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            background: blue;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #send-button:hover {
+            background: darkblue;
+        }
+    </style>
+</head>
 <body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
+
+<div id="chat-container">
+    <div id="chat-log"></div>
+    <div id="input-container">
+        <input type="text" id="user-input" placeholder="Escribe un mensaje...">
+        <button id="send-button">Enviar</button>
+    </div>
+</div>
+
+<script>
+    class LangflowClient {
+        constructor(baseURL, applicationToken) {
+            this.baseURL = baseURL;
+            this.applicationToken = applicationToken;
+        }
+
+        async post(endpoint, body, headers = {"Content-Type": "application/json"}) {
+            headers["Authorization"] = `Bearer ${this.applicationToken}`;
+            headers["Content-Type"] = "application/json";
+            const url = `${this.baseURL}${endpoint}`;
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(body)
+                });
+                const responseMessage = await response.json();
+                if (!response.ok) {
+                    throw new Error(`${response.status} ${response.statusText} - ${JSON.stringify(responseMessage)}`);
+                }
+                return responseMessage;
+            } catch (error) {
+                console.error('Request Error:', error.message);
+                throw error;
+            }
+        }
+
+        async initiateSession(flowId, langflowId, inputValue, inputType = 'chat', outputType = 'chat', stream = false, tweaks = {}) {
+            const endpoint = `/lf/${langflowId}/api/v1/run/${flowId}?stream=${stream}`;
+            return this.post(endpoint, { input_value: inputValue, input_type: inputType, output_type: outputType, tweaks: tweaks });
+        }
+
+        async runFlow(flowIdOrName, langflowId, inputValue, inputType = 'chat', outputType = 'chat', tweaks = {}, stream = false) {
+            try {
+                const initResponse = await this.initiateSession(flowIdOrName, langflowId, inputValue, inputType, outputType, stream, tweaks);
+                console.log('Init Response:', initResponse);
+                if (!stream && initResponse && initResponse.outputs) {
+                    const flowOutputs = initResponse.outputs[0];
+                    const firstComponentOutputs = flowOutputs.outputs[0];
+                    return firstComponentOutputs.outputs.message.text;
+                }
+            } catch (error) {
+                console.error('Error running flow:', error);
+                return "Error iniciando sesión";
+            }
+        }
+    }
+
+    const langflowClient = new LangflowClient('https://api.langflow.astra.datastax.com', '<YOUR_APPLICATION_TOKEN>');
+    const flowIdOrName = '8e3be22b-6054-4920-a1d2-b8c2497a3a88';
+    const langflowId = '0a504f99-c13f-4436-b22c-a0427b9d2302';
+
+    document.getElementById('send-button').addEventListener('click', async () => {
+        const userInput = document.getElementById('user-input').value;
+        if (userInput.trim() === '') return;
+
+        addMessageToChat('user-message', userInput);
+        document.getElementById('user-input').value = '';
+
+        const botResponse = await langflowClient.runFlow(flowIdOrName, langflowId, userInput);
+        addMessageToChat('bot-message', botResponse);
+    });
+
+    function addMessageToChat(className, message) {
+        const chatLog = document.getElementById('chat-log');
+        const messageElement = document.createElement('div');
+        messageElement.className = `message ${className}`;
+        messageElement.textContent = message;
+        chatLog.appendChild(messageElement);
+        chatLog.scrollTop = chatLog.scrollHeight;
+    }
+</script>
+
 </body>
 </html>
