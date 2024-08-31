@@ -99,66 +99,9 @@
     </div>
 </div>
 
-<script src="langflowClient.js"></script>
-<script>
-    document.getElementById('send-button').addEventListener('click', async () => {
-        const userInput = document.getElementById('user-input').value;
-        if (userInput.trim() === "") return;
-
-        // Mostrar mensaje del usuario en la interfaz
-        const chatbox = document.getElementById('chatbox');
-        const userMessage = document.createElement('div');
-        userMessage.classList.add('message', 'user');
-        userMessage.innerHTML = `<p>${userInput}</p>`;
-        chatbox.appendChild(userMessage);
-
-        // Limpiar el campo de entrada
-        document.getElementById('user-input').value = '';
-        chatbox.scrollTop = chatbox.scrollHeight;
-
-        // Llamada al cliente de Langflow para procesar el mensaje
-        try {
-            const langflowClient = new LangflowClient('https://api.langflow.astra.datastax.com', 'AstraCS:CuYOmQqwbbJZKwokNDNvWlhf:a1485d79f1c1931336296e95c98b93f0233b5c2d6c9fe998452ad1853a719744');
-            const response = await langflowClient.runFlow(
-                '8e3be22b-6054-4920-a1d2-b8c2497a3a88', // flowIdOrName
-                '0a504f99-c13f-4436-b22c-a0427b9d2302', // langflowId
-                userInput, // inputValue
-                'chat', // inputType
-                'chat', // outputType
-                {}, // tweaks
-                false, // stream
-                (data) => {
-                    const botMessage = document.createElement('div');
-                    botMessage.classList.add('message', 'bot');
-                    botMessage.innerHTML = `<p>${data.chunk.text}</p>`;
-                    chatbox.appendChild(botMessage);
-                    chatbox.scrollTop = chatbox.scrollHeight;
-                },
-                (message) => console.log("Stream Closed:", message),
-                (error) => console.error("Stream Error:", error)
-            );
-
-            if (response && response.outputs) {
-                const flowOutputs = response.outputs[0];
-                const firstComponentOutputs = flowOutputs.outputs[0];
-                const output = firstComponentOutputs.outputs.message;
-
-                const botMessage = document.createElement('div');
-                botMessage.classList.add('message', 'bot');
-                botMessage.innerHTML = `<p>${output.message.text}</p>`;
-                chatbox.appendChild(botMessage);
-                chatbox.scrollTop = chatbox.scrollHeight;
-            }
-        } catch (error) {
-            console.error('Error en el chatbot:', error);
-            const botMessage = document.createElement('div');
-            botMessage.classList.add('message', 'bot');
-            botMessage.innerHTML = `<p>Error en el chatbot: ${error.message}</p>`;
-            chatbox.appendChild(botMessage);
-            chatbox.scrollTop = chatbox.scrollHeight;
-        }
-    });
-</script>
+    
+    <script src="https://cdn.jsdelivr.net/gh/logspace-ai/langflow-embedded-chat@v1.0.6/dist/build/static/js/bundle.min.js"></script>
+    
 
 </body>
 </html>
