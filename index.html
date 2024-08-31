@@ -1,107 +1,11 @@
-<!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        #chat-container {
-            width: 400px;
-            background-color: white;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        #chatbox {
-            padding: 20px;
-            height: 400px;
-            overflow-y: auto;
-            border-bottom: 1px solid #ccc;
-        }
-
-        .message {
-            margin-bottom: 20px;
-        }
-
-        .message.user {
-            text-align: right;
-        }
-
-        .message.bot {
-            text-align: left;
-        }
-
-        .message p {
-            display: inline-block;
-            padding: 10px 15px;
-            border-radius: 20px;
-            max-width: 80%;
-        }
-
-        .message.user p {
-            background-color: #0084ff;
-            color: white;
-        }
-
-        .message.bot p {
-            background-color: #e1e1e1;
-            color: black;
-        }
-
-        #input-container {
-            display: flex;
-            padding: 10px;
-            background-color: #f4f4f4;
-        }
-
-        #user-input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 20px;
-            outline: none;
-        }
-
-        #send-button {
-            background-color: #0084ff;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            padding: 10px 20px;
-            margin-left: 10px;
-            cursor: pointer;
-        }
-
-        #send-button:hover {
-            background-color: #006bbf;
-        }
-    </style>
+<script src="https://cdn.jsdelivr.net/gh/logspace-ai/langflow-embedded-chat@v1.0.6/dist/build/static/js/bundle.min.js"></script>
 </head>
 <body>
-
-<div id="chat-container">
-    <div id="chatbox"></div>
-    <div id="input-container">
-        <input type="text" id="user-input" placeholder="Escribe tu mensaje..." autofocus>
-        <button id="send-button">Enviar</button>
-    </div>
-</div>
-
-    
-    <script src="https://cdn.jsdelivr.net/gh/logspace-ai/langflow-embedded-chat@v1.0.6/dist/build/static/js/bundle.min.js"></script>
-    
-
+<langflow-chat
+    host_url="langflow url"
+    flow_id="your_flow_id"
+  ></langflow-chat>
 </body>
 </html>
